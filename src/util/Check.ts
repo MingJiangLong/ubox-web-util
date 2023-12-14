@@ -26,3 +26,11 @@ export function isThenable(value: any): value is (PromiseLike<any> | Promise<any
 export function isBoolean(value: any): value is boolean {
   return value === true || value === false
 }
+
+/**
+ * 大于0且不超过两位小数
+ * @param value 
+ */
+export function isPositiveAndLessThanTwoDecimalNumber(value: any) {
+  return /^\d+(.\d{1,2})?$/ && value > 0
+}

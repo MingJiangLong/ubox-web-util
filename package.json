@@ -6,7 +6,10 @@
   "scripts": {
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "browser",
+    "util"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
