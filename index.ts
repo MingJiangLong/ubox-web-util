@@ -1,3 +1,5 @@
 export * from './src/util/handleError'
 export * from './src/util/ErrorHandle'
-export * from './src/util/UrlHash'
+export * from './src/util/URLHash'
+export * from './src/util/findFromArray'
+export * from './src/util/Check'
