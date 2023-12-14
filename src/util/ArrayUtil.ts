@@ -41,8 +41,10 @@ export function findItem<T extends Array<any>>(value: T, predicate: (item: Array
  * @returns 
  */
 export function findItemNthOccurrenceIndex<T extends Array<any>>(value: T, predicate: (item: ArrayItem<T>) => boolean, nth = 1) {
+  if (nth == 0) throw new Error("params[2] nth 不能为0");
   const counts = countItemOccurrences(value, predicate);
-  return counts.items[nth];
+  let index = nth > 0 ? nth - 1 : counts.times + nth
+  return counts.items[index];
 }
 
 /**

@@ -22,3 +22,7 @@ export function isThenable(value: any): value is (PromiseLike<any> | Promise<any
     isFunction(value?.then) &&
     (isFunction(value?.catch))
 }
+
+export function isBoolean(value: any): value is boolean {
+  return value === true || value === false
+}
