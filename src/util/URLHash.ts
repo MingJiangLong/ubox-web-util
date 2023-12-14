@@ -1,3 +1,5 @@
+import { isStandardBrowserEnv } from "./Check";
+
 export class URLHash {
   static use?: (hash: string) => string
 
@@ -5,6 +7,8 @@ export class URLHash {
    * 获取当前url的hash字符串
    */
   static hash() {
+    if (!isStandardBrowserEnv()) throw new Error("URLHash只支持浏览器环境调用");
+
     let hash = window.location.hash;
     if (this.use) {
       return this.use(hash)
