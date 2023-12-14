@@ -1,4 +1,5 @@
-import { isFunction } from "./isFunction";
+import { isFunction } from "./Check";
+
 
 /**
  * 全局通用异常处理

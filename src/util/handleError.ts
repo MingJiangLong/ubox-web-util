@@ -1,5 +1,5 @@
 import ErrorHandle from "./ErrorHandle";
-import { isFunction } from "./isFunction";
+import { isFunction } from "./Check";
 /**
  * 异常捕获
  * 如果要用设置全局自动捕获调用 `ErrorHandle.updateHandleFn`设置默认捕获函数

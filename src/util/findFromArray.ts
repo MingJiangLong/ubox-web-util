@@ -1,5 +1,5 @@
 import { isArray, isNumber } from "./Check";
-import { isFunction } from "./isFunction";
+import { isFunction } from "./Check";
 
 type ArrayItem<T extends Array<any>> = T extends Array<infer E> ? E : any
 /**
@@ -15,7 +15,6 @@ export function findFromArray<T extends Array<any>>(value: T, predicate: (item: 
   if (!isNumber(start)) throw new Error('params[2] 必须是数字')
   for (let i = start; i < value.length; i++) {
     let current = value[i];
-
     let result: ArrayItem<T> | undefined = undefined
     if (typeof predicate === 'function') {
       if (predicate(current)) {
