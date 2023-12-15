@@ -20,7 +20,7 @@ export class URLHash {
    * 获取当前hash部分路由参数字符串
    * @returns 
    */
-  static pathParamStr() {
+  static getHashStr() {
     const [, valueStr] = this.hash().split('?');
     if (valueStr === undefined) return '';
     return valueStr
@@ -30,8 +30,8 @@ export class URLHash {
    * 获取当前hash部分路由参数对象
    * @returns 
    */
-  static pathParamObj() {
-    let valueStr = this.pathParamStr();
+  static getHashObject() {
+    let valueStr = this.getHashStr();
     return valueStr.split("&").reduce<{ [k: string]: string }>((count, current) => {
       let [key, value] = current.split("=")
       return {
@@ -47,12 +47,12 @@ export class URLHash {
    * @returns 
    */
   static getValueByKey(hashKey: string) {
-    let valueObj = this.pathParamObj()
+    let valueObj = this.getHashObject()
     return valueObj[hashKey];
   }
 
   static getKeyByValue(value: string) {
-    let valueObj = this.pathParamObj();
+    let valueObj = this.getHashObject();
     for (const key in valueObj) {
       if (Object.prototype.hasOwnProperty.call(valueObj, key)) {
         const valueInHash = valueObj[key];
