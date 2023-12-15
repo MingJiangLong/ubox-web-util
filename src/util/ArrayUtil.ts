@@ -1,7 +1,4 @@
-import { isArray, isNumber } from "./Check";
-import { isFunction } from "./Check";
-
-type ArrayItem<T extends Array<any>> = T extends Array<infer E> ? E : any
+import { ArrayItem } from "./TypeHelper";
 /**
  * 连续查找数组元素
  * @param value 待查找数组
@@ -10,9 +7,6 @@ type ArrayItem<T extends Array<any>> = T extends Array<infer E> ? E : any
  * @returns 
  */
 export function findItem<T extends Array<any>>(value: T, predicate: (item: ArrayItem<T>) => boolean, start = 0) {
-  if (!isArray(value)) throw new Error('params[0] 必须可iterator')
-  if (!isNumber(start)) throw new Error('params[2] 必须是数字')
-  if (!isFunction(predicate)) throw new Error('params[1] 必须是一个函数');
   for (let i = start; i < value.length; i++) {
     let current = value[i];
     let result: ArrayItem<T> | undefined = undefined
@@ -41,7 +35,6 @@ export function findItem<T extends Array<any>>(value: T, predicate: (item: Array
  * @returns 
  */
 export function findItemNthOccurrenceIndex<T extends Array<any>>(value: T, predicate: (item: ArrayItem<T>) => boolean, nth = 1) {
-  if (nth == 0) throw new Error("params[2] nth 不能为0");
   const counts = countItemOccurrences(value, predicate);
   let index = nth > 0 ? nth - 1 : counts.times + nth
   return counts.items[index];
