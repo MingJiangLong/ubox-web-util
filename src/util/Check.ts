@@ -19,6 +19,9 @@ export function isArray(value: any): value is Array<any> {
 export function isUndefined(value: any): value is undefined {
   return value === undefined
 }
+export function isNull(value: any): value is null {
+  return value === null
+}
 
 export function isThenable(value: any): value is (PromiseLike<any> | Promise<any>) {
   return (

@@ -62,3 +62,11 @@ export function countItemOccurrences<T extends Array<any>>(value: T, predicate: 
     times: items.length
   }
 }
+
+export function isArray(value: any): value is Array<any> {
+  return Array.isArray(value)
+}
+
+export function isNotArray(value: any): value is Exclude<typeof value, Array<any>> {
+  return !isArray(value)
+}

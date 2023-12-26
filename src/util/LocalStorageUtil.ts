@@ -79,38 +79,49 @@ export class LocalStorageUtil {
   }
 
   getItem<T>(key: string): T | null {
-    const result = localStorage.getItem(this.getKey(key));
-    if (!result) {
-      this.runCallback("onKeyNotExist", key)
+    try {
+      const result = localStorage.getItem(this.getKey(key));
+      if (!result) {
+        this.runCallback("onKeyNotExist", key)
+        return null
+      };
+
+      const parsedResult = JSON.parse(result);
+
+      if (!isArray(parsedResult) || parsedResult.length != 2) {
+        this.runCallback("onError", result)
+        return null
+      };
+
+      let [data, expired] = parsedResult;
+      if (expired === INFINITY) return data;
+
+      const now = Date.now();
+      if (now < expired) return data;
+
+      this.runCallback("onDateExpiredWhenGet", {
+        key,
+        data,
+        expired
+      })
+      return null;
+    } catch (error) {
+      this.runCallback("onError", key, error)
       return null
-    };
-
-    const parsedResult = JSON.parse(result);
-
-    if (!isArray(parsedResult) || parsedResult.length != 2) {
-      this.runCallback("onError", result)
-      return null
-    };
-
-    let [data, expired] = parsedResult;
-    if (expired === INFINITY) return data;
-
-    const now = Date.now();
-    if (now < expired) return data;
-
-    this.runCallback("onDateExpiredWhenGet", {
-      key,
-      data,
-      expired
-    })
-    return null;
+    }
   }
   setItem(key: string, value: any, expired?: number) {
-    const now = Date.now()
-    const latestKeys = this.getKey(key);
-    const data = [value, expired ? now + expired : INFINITY]
-    localStorage.setItem(latestKeys, JSON.stringify(data))
-    this.runCallback('onSetItem', { key, value })
+    try {
+      const now = Date.now()
+      const latestKeys = this.getKey(key);
+      const data = [value, expired ? now + expired : INFINITY]
+      localStorage.setItem(latestKeys, JSON.stringify(data))
+      this.runCallback('onSetItem', { key, value })
+    } catch (error) {
+      this.runCallback("onError", {
+        key, value
+      }, error)
+    }
   }
 
   removeItem(key: string) {

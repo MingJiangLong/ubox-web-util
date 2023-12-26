@@ -16,7 +16,7 @@ export default async function handleError(fn: Fn, finallyHandle?: Finally, error
       return errorHandle(error)
     }
     if (isFunction(ErrorHandle.handle)) {
-      console.log("异常已被handleError处理", error)
+      console.warn("异常已被handleError处理", error)
       return ErrorHandle.handle(error)
     }
     throw error;
