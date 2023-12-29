@@ -38,6 +38,10 @@ export function isBoolean(value: any): value is boolean {
   return value === true || value === false
 }
 
+export function isString(value: any): value is string {
+  return typeOfValue("string")(value)
+}
+
 /**
  * 大于0且不超过两位小数
  * @param value 
