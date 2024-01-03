@@ -1,3 +1,5 @@
+import { NULL_STRING } from "../constant"
+
 export const typeOfValue = (type: string) => (value: any) => typeof value == type
 
 /** 浏览器环境检查 */
@@ -9,7 +11,15 @@ export function isFunction(value: any): value is Function {
 }
 
 export function isNumber(value: any): value is number {
-  return typeOfValue('number')(value)
+  return typeOfValue('number')(value) && !isNaN(value)
+}
+
+/** 
+ * 判断是否是数字 
+ * 包括数字以及数字字符串
+ * */
+export function isNumberic(value: any) {
+  return isNumber(value) || (isString(value) && value.trim() != NULL_STRING && isNumber(+value))
 }
 
 export function isArray(value: any): value is Array<any> {
@@ -40,6 +50,10 @@ export function isBoolean(value: any): value is boolean {
 
 export function isString(value: any): value is string {
   return typeOfValue("string")(value)
+}
+
+export function isIterator(value: any) {
+  return !isNull(value) && isFunction(value[Symbol.iterator])
 }
 
 /**
