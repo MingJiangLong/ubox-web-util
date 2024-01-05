@@ -6,112 +6,115 @@ type Fn = (() => Promise<FnReturn>) | (() => FnReturn)
 declare global {
   interface Window {
     __HANDLE_HELPER__: {
-      handleErrorFn: (error: any) => void
-      handleSuccessFn: (message: string) => void
+      errorCallback: (error: any) => void
+      successCallback: (message: string) => void
     }
   }
 }
 
+
 /**
  * 用于处理错误处理
- * @example
- * // 统一设置Helper成功处理函数
- * HandleHelper.useSuccessHandle((message: string) => {
- *   // 成功消息处理
- * })
- * // 统一设置Helper错误处理函数
- * HandleHelper.useErrorHandle((error) => {
- * // 错误消息处理
- * })
-
- * HandleHelper.handle(() => {
- * // 待执行函数
- * })
  */
 export class HandleHelper {
-  private static handleErrorFn?: (error: any) => void
-  private static handleSuccessFn?: (message: string) => void
-  static disableLog?: boolean
+  private static errorCallback?: (error: any) => void
+  private static successCallback?: (message: string) => void
+  static showLog?: boolean = true
 
-  static handle(fn: Fn, finallyFn?: () => void) {
-    let handleSuccessTemp = HandleHelper.getHandleSuccessFn()
-    let handleErrorTemp = HandleHelper.getHandleErrorFn()
+  static handle(
+    fn: Fn,
+    callback: {
+      successCallback?: (message: string) => void
+      errorCallback?: (error: any) => void
+      finallyCallback?: () => void
+    }
+  ) {
+    let successCallbackFn = callback?.successCallback ?? this.getDefaultSuccessCallback
+    let errorCallbackFn = callback?.errorCallback ?? this.getDefaultErrorCallback
+    let finallyCallback = callback?.finallyCallback ?? (() => { })
+    let isSyncCallback = true; // 标记是否是同步函数
     try {
       const result = fn();
       if (isThenable(result)) {
+        isSyncCallback = false
         result.then(
           (message) => {
             if (isString(message)) {
-              if (isFunction(handleSuccessTemp)) {
-                return handleSuccessTemp(message)
-              }
-
-              if (!HandleHelper.disableLog) {
-                console.warn(`HandleHelper:成功消息[${result}]未被处理`)
+              successCallbackFn(message)
+              if (HandleHelper.showLog) {
+                console.warn(`HandleHelper:成功消息[${message}]`)
               }
             }
           },
           (error) => {
-            if (isFunction(handleErrorTemp)) {
-              return handleErrorTemp(error)
+            if (HandleHelper.showLog) {
+              console.warn(`HandleHelper:失败消息[${error}]`)
             }
-            return Promise.reject(error)
+            errorCallbackFn(error)
           }).finally(
             () => {
-              if (isFunction(finallyFn)) {
-                finallyFn()
-              }
+              finallyCallback()
             })
       }
 
       if (isString(result)) {
-        if (isFunction(handleSuccessTemp)) {
-          return handleSuccessTemp(result);
+        if (HandleHelper.showLog) {
+          console.warn(`HandleHelper:成功消息[${result}]`)
         }
-
-        if (!HandleHelper.disableLog) {
-          console.warn(`HandleHelper:成功消息[${result}]未被处理`)
-        }
+        return successCallbackFn(result);
       }
     } catch (error) {
-      if (isFunction(handleErrorTemp)) {
-        return handleErrorTemp(error)
+      if (HandleHelper.showLog) {
+        console.warn(`HandleHelper:失败消息[${error}]`)
       }
-      throw error;
+      return errorCallbackFn(error)
     } finally {
-      if (isFunction(finallyFn)) {
-        finallyFn()
+      if (isSyncCallback) {
+        finallyCallback()
       }
     }
   }
 
-  static useSuccessHandle(fn: (message: string) => void) {
 
-    this.handleSuccessFn = fn
-    if (window && window.__HANDLE_HELPER__) {
+  static updateSuccessCallback(callback: (message: string) => void, syncWithWindow = true) {
+    let temp = (message: string) => { };
+    if (isFunction(callback)) {
+      temp = callback
+    }
+    this.successCallback = temp;
+
+    if (syncWithWindow) {
       window.__HANDLE_HELPER__ = {
         ...window.__HANDLE_HELPER__,
-        handleSuccessFn: (message: string) => fn(message)
+        successCallback: (message: string) => temp(message)
       }
     }
+
   }
 
-  static useErrorHandle(fn: (error: any) => void) {
-    this.handleErrorFn = fn
-    if (window && window.__HANDLE_HELPER__) {
+  static updateErrorCallback(callback: (error: any) => void, syncWithWindow = true) {
+    let temp = (error: any) => { };
+    if (isFunction(callback)) {
+      temp = callback
+    }
+    this.errorCallback = temp;
+
+    if (syncWithWindow) {
       window.__HANDLE_HELPER__ = {
         ...window.__HANDLE_HELPER__,
-        handleErrorFn: (error: any) => fn(error)
+        errorCallback: (error: any) => temp(error)
       }
     }
   }
 
 
-  private static getHandleSuccessFn() {
-    return HandleHelper.handleSuccessFn || window?.__HANDLE_HELPER__?.handleSuccessFn
+
+
+  private static getDefaultSuccessCallback() {
+    return HandleHelper.successCallback || window?.__HANDLE_HELPER__?.successCallback || ((message: string) => { })
   }
-  private static getHandleErrorFn() {
-    return HandleHelper.handleErrorFn || window?.__HANDLE_HELPER__?.handleErrorFn
+  private static getDefaultErrorCallback() {
+    return HandleHelper.errorCallback || window?.__HANDLE_HELPER__?.errorCallback || ((error: any) => { })
   }
 }
 
